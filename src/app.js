@@ -12,13 +12,15 @@ app.use(
   })
 );
 
+// here we just define below methods but their real use in production
+
 // DATA IN JSON FORM
 app.use(express.json({ limit: "16kb" }));
 
 // data from URL
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-// DATA SAVE IN MY SERVER
+// DATA SAVE IN MY SERVER maybe in pdf, svg
 app.use(express.static("public"));
 
 // cookie-parser

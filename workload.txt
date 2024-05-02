@@ -1,0 +1,19 @@
+Krishna Patil
+
+Hello,
+
+Below are the updates as of 1  May 2024.
+
+List of Completed Tasks:-
+-----------------------------------------------------------------------------------------------------
+Backend:
+
+=> I have learnt How to setup a professional backend project
+=> I have learnt How to connect database in MERN with debugging
+=> I have learnt Custom API response and error handling 
+=> I have started learning  User and video model with hooks and JWT
+
+-----------------------------------------------------------------------------------------------------
+Would you please check the updates and let me know your thoughts?
+
+Thank you.
