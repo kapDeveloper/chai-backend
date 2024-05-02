@@ -29,4 +29,10 @@ app.use(cookieParser());
 app.get("/", (req, res) => {
   res.send("Hello I am your Server!");
 });
+
+//import user routes
+
+import userRouter from "./routes/user.routes.js";
+
+app.use("/api/v1/users", userRouter);
 export { app };
