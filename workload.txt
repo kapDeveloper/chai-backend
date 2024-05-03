@@ -37,3 +37,21 @@ Backend:
 Would you please check the updates and let me know your thoughts?
 
 Thank you.
+
+
+Krishna Patil
+Hello,
+
+Below are the updates as of 3 May 2024.
+
+List of Completed Tasks:-
+-----------------------------------------------------------------------------------------------------
+Backend: 
+=> I have learnt Register controller and get data from postman using form-data and store it on MongoDB
+=> I have learnt postman, How to create collection and how to setup environment variable to short out our url
+=> I have learnt AccessToken and RefreshToken.
+=> Next I implementing this token with Login and Logout controller
+-----------------------------------------------------------------------------------------------------
+Would you please check the updates and let me know your thoughts?
+
+Thank you.
