@@ -3,32 +3,18 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-// const registerUser = asyncHandler(async (res, req, next, err) => {
-//   res.status(200).json({
-//     message: "ok",
-//   });
-// });
 
 const registerUser = asyncHandler(async (req, res) => {
-  // send message to postman
-  // res.status(200).json({
-  //   message: "ok",
-  // });
-  // get data from postman and seen at console
-  // const { email, fullName } = req.body;
-  // console.log("Email: ", email);
-  // console.log("FullName: ", fullName);
-
   // step 1:
   const { email, password, userName, fullName } = req.body;
-  console.log("Email: ", email);
+  // console.log("Email: ", email);
 
   // step 2: validation
 
   // basic method
-  if (fullName === " ") {
-    throw new ApiError(400, "FullName is required");
-  }
+  // if (fullName === " ") {
+  //   throw new ApiError(400, "FullName is required");
+  // }
 
   // advance
   if (
@@ -39,7 +25,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
   //step 3: check user already exits or not
 
-  const existUser = User.findOne({
+  const existUser = await User.findOne({
     $or: [{ userName }, { email }],
   });
 
@@ -50,8 +36,16 @@ const registerUser = asyncHandler(async (req, res) => {
   // step 4 check for images or check for avatar
   // get path by multer
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
+  let coverImageLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
@@ -65,13 +59,15 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // step 6: create user object in db
+
   const user = await User.create({
     fullName,
     avatar: avatar.url,
-    coverImage: coverImage?.url || " ",
+    coverImage: coverImage?.url || "",
     email,
     password,
     userName: userName.toLowerCase(),
+    // userName,
   });
 
   // check user creation
@@ -98,6 +94,7 @@ export { registerUser };
 // check if user already exits: - email or username
 // check for images or check for avatar
 // if they available upload on cloudinary , check avatar exit or n
+
 // create user object - create entry in db
 // once user created successfully then remove password and refresh token field from response
 // check for user creation
