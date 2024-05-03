@@ -17,3 +17,23 @@ Backend:
 Would you please check the updates and let me know your thoughts?
 
 Thank you.
+
+
+Krishna Patil
+Hello,
+
+Below are the updates as of 2  May 2024.
+
+List of Completed Tasks:-
+-----------------------------------------------------------------------------------------------------
+Backend:
+=> I have learnt and created User and video model with hooks and JWT
+=> I have learnt How to upload file in backend | Multer
+=> I have learnt HTTP methods and status code
+=> I have learnt router and controller  
+=> I have learning how to build Logic for - Register controller
+=> I have learning How to use postman for backend 
+-----------------------------------------------------------------------------------------------------
+Would you please check the updates and let me know your thoughts?
+
+Thank you.
