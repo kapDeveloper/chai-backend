@@ -366,7 +366,7 @@ const updateUserAccountDetails = asyncHandler(async (res, req) => {
   // user
   // req.user?.id;
 
-  const user = User.findByIdAndUpdate(
+  const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set: {
@@ -384,6 +384,8 @@ const updateUserAccountDetails = asyncHandler(async (res, req) => {
 });
 
 // update avatar and   of user
+
+// ToDo delete old Avatar
 const updateUserAvatar = asyncHandler(async (res, req) => {
   const avatarLocalPath = req.file?.path;
 
@@ -448,6 +450,144 @@ const updateUserCoverImage = asyncHandler(async (res, req) => {
     .status(200)
     .json(new ApiResponse(200, user, "User Cover Image Update Successfully"));
 });
+
+// getUserChannel
+
+const getUserChannelProfile = asyncHandler(async (res, req) => {
+  const { userName } = req.params;
+  if (!userName?.trim()) {
+    throw new ApiError(400, "username is missing");
+  }
+
+  // User.find({ userName });
+  const channel = await User.aggregate([
+    {
+      $match: {
+        userName: userName?.toLowerCase(),
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    {
+      $addFields: {
+        subscriberCount: {
+          $size: "$subscribers",
+        },
+        channelSubscribedToCount: {
+          $size: "$subscribedTo",
+        },
+        isSubscribed: {
+          $cond: {
+            if: { $in: [req.user?._id, "$subscribers.subscriber"] },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    {
+      // give selected fields
+      $project: {
+        fullName: 1,
+        email: 1,
+        subscriberCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+      },
+    },
+  ]);
+
+  console.log(channel);
+  if (!channel?.length) {
+    throw new ApiError(400, " chanel does not exists");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, channel[0], "User channel fetched successfully")
+    );
+});
+
+// getWatchHistory
+const getWatchHistory = asyncHandler(async (res, req) => {
+  // here we found string we need to convert it to id
+  // res.user._id;
+
+  const user = await User.aggregate([
+    {
+      $match: {
+        // _id: res.user._id,
+        _id: new mongoose.Types.ObjectId(res.user._id),
+      },
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    userName: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          {
+            $addFields: {
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  if (!user) {
+    throw new ApiError(400, "Invalid user watch history");
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        user[0].watchHistory,
+        "watch history fetched successfully"
+      )
+    );
+});
 //export
 export {
   registerUser,
@@ -459,6 +599,8 @@ export {
   updateUserAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
+  getWatchHistory,
 };
 
 // step to register user
@@ -473,3 +615,23 @@ export {
 // once user created successfully then remove password and refresh token field from response
 // check for user creation
 // return user
+
+// Aggregation
+// [
+//   {
+//     $lookup: {
+//       from:"authors",
+//       localField:"author_id",
+//       foreignField: "_id",
+//       as: "authors_details"
+//     }
+//   },
+//   {
+//     $addFields: {
+//       authors_details:{
+//         // $first:"$authors_details"
+//         $arrayElemAt:["$authors_details", 0]
+//       }
+//     }
+//   }
+// ]
