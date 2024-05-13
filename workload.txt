@@ -55,3 +55,69 @@ Backend:
 Would you please check the updates and let me know your thoughts?
 
 Thank you.
+
+
+
+	Krishna Patil
+
+	Hello,
+
+	Below are the updates as of 8 May 2024.
+
+	List of Completed Tasks:-
+	==========================================================
+	Backend: 
+		=> I have learnt and implemented how to refresh expired token
+		=> I have learnt how to update data from mongoDB and build controller for update password,  file , userName email
+		=> I have learnt mongoDB aggregation pipelines and;
+			use $match, $lookup, $addFields :- $first and $arrayElemAt and how to perform nested $lookup 
+		=> I have build demo using aggregation pipelines :- $sixze $cond $in $project
+		
+	==========================================================
+	Would you please check the updates and let me know your thoughts?
+
+	Thank you.
+
+
+	// step 1 app -> index
+
+
+
+		Krishna Patil
+
+	Hello,
+
+	Below are the updates as of 9 May 2024.
+
+	List of Completed Tasks:-
+	==========================================================
+	Backend: 
+		=> I have learnt "nodemailer" and SMTP Protocol
+		=> I have create demo which is send mail on one ore more destination with text
+		=> I have working on demo project 
+		=> For today In Demo project I have created and tested user model and controller with route "/register" and data  successfully,save in mongoDB, 
+	==========================================================
+	Would you please check the updates and let me know your thoughts?
+
+	Thank you.
+
+
+Krishna Patil
+
+Hello,
+
+Below are the updates as of 9 May 2024.
+
+List of Completed Tasks:-
+==========================================================
+Backend: 
+	=> I have learnt "nodemailer" and SMTP Protocol
+	=> I have create demo which is send mail on one ore more destination with text
+	=> I have working on demo project 
+	=> I have create middleware for multer
+	=> I have created and tested user model and controller with route "/register" and data  successfully,save in mongoDB,
+	=> I have handle erros using utils 
+==========================================================
+Would you please check the updates and let me know your thoughts?
+
+Thank you.

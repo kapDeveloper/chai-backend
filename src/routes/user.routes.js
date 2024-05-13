@@ -10,11 +10,14 @@ import {
   updateUserAccountDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
+  otpVerification,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router();
 
+// done
 router.route("/register").post(
   upload.fields([
     {
@@ -29,19 +32,23 @@ router.route("/register").post(
   registerUser
 );
 
+// done
 router.route("/login").post(loginUser);
 
-// secured routes
+// otpVerification route
+router.route("/login/otp-verification").post(otpVerification);
+// secured routes done
 router.route("/logout").post(verifyJWT, logoutUser);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
+//done
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 
-router.route("current-user").get(verifyJWT, getCurrentUser);
+router.route("/current-user").get(verifyJWT, getCurrentUser);
 
 router
-  .route("update-account-details")
+  .route("/update-account-details")
   .patch(verifyJWT, updateUserAccountDetails);
 
 router
@@ -52,8 +59,9 @@ router
   .route("/update-cover-image")
   .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
-// get from params
+// get from params  /users/c/username exm /users/c/krish
 router.route("/c/:userName").get(verifyJWT, getUserChannelProfile);
 
+// done
 router.route("/watch-history").get(verifyJWT, getWatchHistory);
 export default router;

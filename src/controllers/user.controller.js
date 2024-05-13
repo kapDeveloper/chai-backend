@@ -4,7 +4,12 @@ import { User } from "../models/user.models.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import mongoose, { Schema } from "mongoose";
+import nodemailer from "nodemailer";
+import bcrypt from "bcrypt";
+import { Otp } from "../models/otp.model.js";
 // token
+
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -105,6 +110,24 @@ const registerUser = asyncHandler(async (req, res) => {
     // userName,
   });
 
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "kap.globalia@gmail.com",
+      pass: "zrcw myub zigd idhn",
+    },
+  });
+
+  let info = await transporter.sendMail({
+    from: "kap.globalia@gmail.com",
+    to: email,
+    subject: "Successfully Registration Mail ",
+    text: `Thank You ${fullName} for registering with us. Keep safe your Email id: ${email} and Password: ${password} `,
+  });
+
+  console.log(`Message send:`, info.messageId);
+  res.json(info);
+
   // check user creation
   const createUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -158,25 +181,49 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User does not exist");
   }
 
-  const isPasswordValid = await user.isPasswordCorrect(password);
+  // const isPasswordValid = await bcrypt.compare(password, user.password);
 
-  if (!isPasswordValid) {
-    throw new ApiError(401, "Invalid user credentials");
-  }
+  // if (!isPasswordValid) {
+  //   throw new ApiError(401, "Invalid user credentials");
+  // }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user._id
   );
 
-  const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken"
-  );
+  // const loggedInUser = await User.findById(user._id).select(
+  //   "-password -refreshToken"
+  // );
 
   const options = {
     httpOnly: true,
     secure: true,
   };
   // console.log(options);  `
+
+  const otp = Math.round(Math.random() * 9000 + 1000);
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "kap.globalia@gmail.com",
+      pass: "zrcw myub zigd idhn",
+    },
+  });
+
+  let info = await transporter.sendMail({
+    from: "kap.globalia@gmail.com",
+    to: email,
+    subject: "OTP Verification",
+    text: `please confirm your OTP: ${otp}`,
+  });
+
+  console.log(`Message send:`, info.messageId);
+  // res.json(info);
+
+  const otpUser = await Otp.create({
+    otp,
+    email,
+  });
 
   return res
     .status(200)
@@ -186,14 +233,43 @@ const loginUser = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         {
-          user: loggedInUser,
-          accessToken,
-          refreshToken,
+          // user: loggedInUser,
+          // accessToken,
+          // refreshToken,
         },
-        "User logged In Successfully"
+        "OTP Sent Successfully"
       )
     );
 });
+const otpVerification = asyncHandler(async (req, res) => {
+  const { email, otp } = req.body;
+  console.log(email, " And ", otp);
+
+  if (!email && !otp) {
+    throw new ApiError(400, "email and otp is required");
+  }
+
+  const user = await Otp.findOne({
+    $or: [{ otp }, { email }],
+  });
+
+  if (!user) {
+    throw new ApiError(404, "User does not exist");
+  }
+
+  const loggedInUser = await Otp.findById(user._id).select("-password");
+  console.log(loggedInUser);
+
+  if (!(otp === loggedInUser.otp)) {
+    throw new ApiError(400, "Sorry you entered wrong OTP");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { user: loggedInUser }, "Account is verified"));
+});
+
+//wexovoc528@bsomek.com
 
 //   //1
 //   const { email, userName, password } = req.body;
@@ -527,7 +603,7 @@ const getUserChannelProfile = asyncHandler(async (res, req) => {
 });
 
 // getWatchHistory
-const getWatchHistory = asyncHandler(async (res, req) => {
+const getWatchHistory = asyncHandler(async (req, res) => {
   // here we found string we need to convert it to id
   // res.user._id;
 
@@ -535,7 +611,7 @@ const getWatchHistory = asyncHandler(async (res, req) => {
     {
       $match: {
         // _id: res.user._id,
-        _id: new mongoose.Types.ObjectId(res.user._id),
+        _id: new mongoose.Types.ObjectId(req.user._id),
       },
     },
     {
@@ -590,6 +666,7 @@ const getWatchHistory = asyncHandler(async (res, req) => {
 });
 //export
 export {
+  otpVerification,
   registerUser,
   loginUser,
   logoutUser,
