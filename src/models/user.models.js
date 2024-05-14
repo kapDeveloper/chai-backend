@@ -40,7 +40,7 @@ const userSchema = new Schema(
     refreshToken: {
       type: String,
     },
-    isValid: {
+    isVerify: {
       type: Boolean,
       default: false,
     },

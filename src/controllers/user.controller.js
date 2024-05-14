@@ -126,7 +126,6 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   console.log(`Message send:`, info.messageId);
-  res.json(info);
 
   // check user creation
   const createUser = await User.findById(user._id).select(
@@ -161,6 +160,7 @@ const loginUser = asyncHandler(async (req, res) => {
   //send cookie
 
   const { email, username, password } = req.body;
+
   // console.log(email);
 
   if (!username && !email) {
@@ -191,15 +191,46 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  // const loggedInUser = await User.findById(user._id).select(
+  // const loggedInUser = await User.findOne(user._id).select(
   //   "-password -refreshToken"
   // );
+  // console.log("ffffffffff", loggedInUser);
+
+  // if (!loggedInUser.isVerify) {
+  //   return res.json(new ApiResponse(400, "User Account is Not Verified"));
+  // }
 
   const options = {
     httpOnly: true,
     secure: true,
   };
-  // console.log(options);  `
+  // console.log(options);
+
+  const verifiedUser = await User.findOne({
+    $or: [{ email }],
+  });
+
+  if (!verifiedUser.isVerify) {
+    throw new ApiError(400, "Please verified your account with OTP");
+  }
+  console.log(verifiedUser);
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(200, verifiedUser, "Login Successfully"));
+});
+
+const sendOTP = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  const user = await User.findOne({
+    $and: [{ email }],
+  });
 
   const otp = Math.round(Math.random() * 9000 + 1000);
   const transporter = nodemailer.createTransport({
@@ -213,41 +244,27 @@ const loginUser = asyncHandler(async (req, res) => {
   let info = await transporter.sendMail({
     from: "kap.globalia@gmail.com",
     to: email,
-    subject: "OTP Verification",
-    text: `please confirm your OTP: ${otp}`,
+    subject: "OTP Verification Email",
+    text: `Hello ${user.fullName} please confirm your OTP: ${otp}`,
   });
-
-  console.log(`Message send:`, info.messageId);
-  // res.json(info);
 
   const otpUser = await Otp.create({
     otp,
     email,
   });
-
-  return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          // user: loggedInUser,
-          // accessToken,
-          // refreshToken,
-        },
-        "OTP Sent Successfully"
-      )
-    );
+  return res.status(200).json(new ApiResponse(200, "OTP sent successfully"));
 });
+
+// otp verification
 const otpVerification = asyncHandler(async (req, res) => {
   const { email, otp } = req.body;
-  console.log(email, " And ", otp);
+  console.log("Otp verification");
 
   if (!email && !otp) {
     throw new ApiError(400, "email and otp is required");
   }
+  const newUser = await User.findOne({ $or: [{ email }] });
+  console.log(newUser);
 
   const user = await Otp.findOne({
     $or: [{ otp }, { email }],
@@ -257,16 +274,19 @@ const otpVerification = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User does not exist");
   }
 
-  const loggedInUser = await Otp.findById(user._id).select("-password");
-  console.log(loggedInUser);
+  const loggedInUser = await Otp.findById(user._id).select(
+    "-password, -createdAt, -updatedAt"
+  );
+
+  const verifiedUser = await User.findByIdAndUpdate(newUser._id, {
+    $set: { isVerify: true },
+  });
 
   if (!(otp === loggedInUser.otp)) {
     throw new ApiError(400, "Sorry you entered wrong OTP");
   }
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, { user: loggedInUser }, "Account is verified"));
+  return res.status(200).json(new ApiResponse(200, "Account is verified"));
 });
 
 //wexovoc528@bsomek.com
@@ -666,6 +686,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
 });
 //export
 export {
+  sendOTP,
   otpVerification,
   registerUser,
   loginUser,

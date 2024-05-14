@@ -121,3 +121,27 @@ Backend:
 Would you please check the updates and let me know your thoughts?
 
 Thank you.
+
+
+Krishna Patil
+Hello
+
+Below are the updates as of 13 May, 2024.
+
+List of Completed Tasks:
+----------------------------------------------------------------------------------------------------
+Backend:-
+
+=> I have completed user registration with thank you email.
+=> I have adding OTP base login verification.
+=> I have created OTP Model, otp-verification route, and otpVerification controller
+=> I have successfully sent otp when user first time login and saved it to mongoDB later,
+=> I have successfully matched store otp with otp-verification api
+
+Note:-
+
+=> I have working and fixing bug in demo specially in my data flow
+
+Would you please check the updates and let me know your thoughts?
+
+Thank you.

@@ -12,6 +12,7 @@ import {
   updateUserCoverImage,
   getUserChannelProfile,
   otpVerification,
+  sendOTP,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -35,6 +36,8 @@ router.route("/register").post(
 // done
 router.route("/login").post(loginUser);
 
+// sent otp
+router.route("/login/send-otp").post(sendOTP);
 // otpVerification route
 router.route("/login/otp-verification").post(otpVerification);
 // secured routes done
